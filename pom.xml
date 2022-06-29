@@ -2,17 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
-
-  <groupId>net.jodah</groupId>
-  <artifactId>failsafe</artifactId>
-  <version>2.4.1-SNAPSHOT</version>
-  <name>Failsafe</name>
-  <url>http://github.com/jhalterman/failsafe/</url>
+  <packaging>pom</packaging>
+  <groupId>dev.failsafe</groupId>
+  <artifactId>failsafe-parent</artifactId>
+  <version>3.2.5-SNAPSHOT</version>
+  <name>Failsafe Parent</name>
+  <description>Fault tolerance and resilience patterns</description>
+  <url>https://failsafe.dev</url>
 
   <licenses>
     <license>
@@ -30,10 +26,17 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:jhalterman/failsafe.git</connection>
-    <developerConnection>scm:git:git@github.com:jhalterman/failsafe.git</developerConnection>
-    <url>http://github.com/jhalterman/failsafe/</url>
+    <connection>scm:git:git@github.com:failsafe-lib/failsafe.git</connection>
+    <developerConnection>scm:git:git@github.com:failsafe-lib/failsafe.git</developerConnection>
+    <url>https://github.com/failsafe-lib/failsafe</url>
+    <tag>HEAD</tag>
   </scm>
+
+  <modules>
+    <module>core</module>
+    <module>modules/okhttp</module>
+    <module>modules/retrofit</module>
+  </modules>
 
   <dependencies>
     <!-- Test Dependencies -->
@@ -46,33 +49,13 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>2.23.4</version>
+      <version>4.2.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>net.jodah</groupId>
       <artifactId>concurrentunit</artifactId>
       <version>0.4.4</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Examples dependencies -->
-    <dependency>
-      <groupId>io.reactivex</groupId>
-      <artifactId>rxjava</artifactId>
-      <version>1.0.12</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-all</artifactId>
-      <version>4.1.51.Final</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-core</artifactId>
-      <version>3.9.8</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -89,10 +72,25 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <trimStackTrace>false</trimStackTrace>
+          <properties>
+            <property>
+              <name>listener</name>
+              <value>dev.failsafe.testing.TestCaseLogger</value>
+            </property>
+          </properties>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
           <releaseProfiles>release</releaseProfiles>
           <arguments>-Prelease</arguments>
+          <mavenExecutorId>forked-path</mavenExecutorId>
         </configuration>
       </plugin>
       <plugin>
@@ -107,7 +105,7 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>4.2.0</version>
+        <version>5.1.3</version>
         <extensions>true</extensions>
         <executions>
           <execution>
@@ -127,8 +125,9 @@
             <Implementation-Title>${project.description}</Implementation-Title>
             <Implementation-Version>${project.version}</Implementation-Version>
             <Bundle-Name>Failsafe</Bundle-Name>
-            <Bundle-SymbolicName>net.jodah.failsafe</Bundle-SymbolicName>
-            <Export-Package>net.jodah.failsafe*;version=1.0</Export-Package>
+            <Bundle-SymbolicName>dev.failsafe</Bundle-SymbolicName>
+            <Automatic-Module-Name>dev.failsafe</Automatic-Module-Name>
+            <Export-Package>dev.failsafe*;version=1.0</Export-Package>
             <Import-Package>*</Import-Package>
           </instructions>
         </configuration>
@@ -149,10 +148,12 @@
           <author>false</author>
           <show>protected</show>
           <excludePackageNames>*.internal</excludePackageNames>
+          <detectOfflineLinks />
           <additionalparam>
             -Xdoclint:none
             -notimestamp
             -link http://docs.oracle.com/javase/8/docs/api/
+            -link https://failsafe.dev/javadoc/core/
           </additionalparam>
         </configuration>
       </plugin>
@@ -166,7 +167,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.2</version>
+        <version>0.8.7</version>
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -218,7 +219,7 @@
             <extensions>true</extensions>
             <configuration>
               <serverId>sonatype-nexus-staging</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
